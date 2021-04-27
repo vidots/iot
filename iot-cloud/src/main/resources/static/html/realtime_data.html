@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>设备实时数据</title>
+    <link rel="stylesheet" type="text/css" href="/css/index.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+</head>
+<body>
+<div class="row" id="container">
+
+</div>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script>
+    function searchParse(){
+        var resultObj = {};
+        var search = window.location.search;
+        if(search && search.length > 1){
+            var search = search.substring(1);
+            var items = search.split('&');
+            for(var index = 0 ; index < items.length ; index++ ){
+                if(! items[index]){
+                    continue;
+                }
+                var kv = items[index].split('=');
+                resultObj[kv[0]] = typeof kv[1] === "undefined" ? "":kv[1];
+            }
+        }
+        return resultObj;
+    }
+
+    let deviceKey = searchParse()['deviceKey']
+
+    function getRealtimeData() {
+        $.get("/mqtt/data?deviceKey=" + deviceKey, function(data) {
+            console.log(data)
+            let all = data['data'].reverse()
+            let added = ''
+            for (let i = 0; i < all.length; i++) {
+                let timestamp = parseInt(all[i]['date'])
+                let date = new Date(timestamp).toLocaleString()
+                let link = date
+                for (let key in all[i]) {
+                    if (key == 'date') {
+                         continue
+                    }
+                    link = link + " -- " + key + " : " + parseFloat(all[i][key]).toFixed(2) + " "
+                }
+                added += `<div style="margin-top: 10px; font-size: medium;" class="col-md-10">
+                        <div class="well-sm" style="margin-left: 10px">
+                            ${link}
+                        </div>
+                    </div>
+                    `
+
+            }
+            document.getElementById('container').innerHTML = added
+        })
+    }
+
+    setInterval(getRealtimeData, 2000)
+</script>
+</body>
+</html>

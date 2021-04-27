@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>设备连接管理</title>
+    <link rel="stylesheet" type="text/css" href="/css/index.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+</head>
+<body>
+<div class="row">
+    <div class="col-md-12">
+        <div style="text-align: center; font-size: 24px;">设备管理</div>
+    </div>
+    <hr>
+</div>
+<div class="row" id="container">
+
+</div>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script>
+    function refresh() {
+        $.get("/mqtt/connected-devices", function(data) {
+            console.log(data)
+            let connected = data['connected-devices']
+            $.get("/mqtt/all-devices", function(devices) {
+                console.log(devices)
+                let all = devices['all-devices']
+                let added = ''
+                for (let i = 0; i < all.length; i++) {
+                    if (all[i]['deviceKey'] == 'admin') {
+                        continue
+                    }
+                    let link = ''
+                    let deviceKey = all[i]['deviceKey']
+                    if (connected.includes(deviceKey)) {
+                        link = `运行中(<a href="/page/devices/realtime_data?deviceKey=${deviceKey}">实时查看数据</a>)`
+                    } else {
+                        link = '暂未运行'
+                    }
+                    added += `<div style="margin-top: 0px; font-size: medium;" class="col-md-10">
+                        <div class="well-sm" style="margin-left: 10px; text-align: center">
+                            ${all[i]['name']} --- ${link}
+                        </div>
+                        <hr>
+                    </div>
+                    `
+
+                }
+                document.getElementById('container').innerHTML = added
+            })
+
+        })
+    }
+    setInterval(refresh, 4000)
+</script>
+</body>
+</html>

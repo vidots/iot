@@ -1,0 +1,15 @@
+server:
+  port: 8089
+spring:
+  redis:
+    host: localhost
+  datasource:
+    username: root
+    password: weichuang
+    url: jdbc:mysql://127.0.0.1:3306/lot?autoReconnect=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.jdbc.Driver
+
+mybatis:
+  type-aliases-package: com.vidots.lot.repo
+  configuration:
+    map-underscore-to-camel-case: true
